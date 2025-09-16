@@ -1,4 +1,3 @@
-
 class ram_environment extends uvm_env;
   `uvm_component_utils(ram_environment)
   ram_agent agt;
