@@ -1,4 +1,3 @@
-
 class ram_test extends uvm_test;
   `uvm_component_utils(ram_test)
   virtual ram_interface vif;
@@ -26,16 +25,18 @@ class ram_test extends uvm_test;
   
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
-    uvm_report_info("ram_test","test problem1");
+   // uvm_report_info("ram_test","test problem1");
     ram_seq=ram_sequence::type_id::create("ram_seq");
-    uvm_report_info("ram_test","test problem2");
+  //  uvm_report_info("ram_test","test problem2");
     
     phase.raise_objection(this,"Starting base sequence");
     $display("%t Base sequence started",$time);
-    uvm_report_info("ram_test","test problem3");
+   // uvm_report_info("ram_test","test problem3");
     ram_seq.start(env.agt.seqr);
+    uvm_report_info("ram_test","seqr driv handshake initiated");
+  //  uvm_report_info("ram_test","test problem4");
     phase.drop_objection(this,"Base sequence completed");
-    uvm_report_info("ram_test","test problem4");
+   // uvm_report_info("ram_test","test problem5");
   endtask
 endclass
     
