@@ -1,4 +1,3 @@
-
 	`define DRIV_IF vif.driver_mp
 
 class ram_driver extends uvm_driver#(ram_sequence_item);
@@ -21,41 +20,57 @@ class ram_driver extends uvm_driver#(ram_sequence_item);
     forever begin
       trans=ram_sequence_item::type_id::create("trans");
       seq_item_port.get_next_item(trans);
-      $display("Randomized values sent to driver: wr_en=%0b, rd_en=%0b, chip_en=%0b, addr=%0h, data_in=%0h,reset=%0b",trans.wr_en,trans.rd_en,trans.chip_en, trans.addr, trans.data_in, trans.reset);
       
-      if(trans.rd_en==0 && trans.wr_en==0) begin
-        //do nothing
-      end
-      else if(trans.reset) begin
+      
+       if(trans.reset) begin
         `DRIV_IF.reset=trans.reset;
         `DRIV_IF.wr_en = 0;
         `DRIV_IF.rd_en = 0;
         `DRIV_IF.addr = 0;
         `DRIV_IF.data_in = 0;
-        #10;
+        #20;
       end
+      if(trans.chip_en==1) begin
+        
+        if(trans.rd_en==0 && trans.wr_en==0) begin
+        //do nothing
+      end
+        
       
-      else if(trans.rd_en==0 && trans.wr_en==1) begin
+        else if((trans.rd_en==0 && trans.wr_en==1) || (trans.rd_en==1 && trans.wr_en==1) ) begin
+        `DRIV_IF.chip_en=trans.chip_en;
         `DRIV_IF.addr=trans.addr;
         `DRIV_IF.data_in=trans.data_in;
         `DRIV_IF.wr_en=trans.wr_en;
         `DRIV_IF.rd_en=trans.rd_en;
-        #10;
+        `DRIV_IF.reset=trans.reset;
+        #20;
       end
       
       else if(trans.rd_en==1 && trans.wr_en==0) begin
+        `DRIV_IF.chip_en=trans.chip_en;
         `DRIV_IF.wr_en=trans.wr_en;
         `DRIV_IF.rd_en=trans.rd_en;
-        #10;
-         end
-      else if(trans.rd_en==1 && trans.wr_en==1) begin
+        `DRIV_IF.addr=trans.addr;
+        `DRIV_IF.reset=trans.reset;
+        #20;
+      end
+      end
+      else if(trans.chip_en==0)begin
+        uvm_report_info("ram_driver","Chip enable is low");
+        `DRIV_IF.chip_en=trans.chip_en;
         `DRIV_IF.addr=trans.addr;
         `DRIV_IF.data_in=trans.data_in;
         `DRIV_IF.wr_en=trans.wr_en;
         `DRIV_IF.rd_en=trans.rd_en;
-        #10;
+        `DRIV_IF.reset=trans.reset;
+        
+        #20;
       end
+        
       seq_item_port.item_done();
+      
+     // $display("Randomized values received at driver after sending to dut after itemdone: wr_en=%0b, rd_en=%0b, chip_en=%0b, addr=%0h, data_in=%0h,reset=%0b",`DRIV_IF.wr_en,`DRIV_IF.rd_en,`DRIV_IF.chip_en, `DRIV_IF.addr,`DRIV_IF.data_in,`DRIV_IF.reset);
     end
   endtask
 endclass
