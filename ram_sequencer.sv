@@ -1,4 +1,3 @@
-
 class ram_sequencer extends uvm_sequencer#(ram_sequence_item);
   `uvm_component_utils(ram_sequencer)
   
